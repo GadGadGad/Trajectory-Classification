@@ -19,7 +19,7 @@ class VotingModel(Model):
                  models: List[Model],
                  voting: str = 'hard',
                  weights: Union[List[float], None] = None,
-                 featurizer: featurizers.Featurize = None,
+                 featurizer: featurizers.Featurizer = None,
                  **kwargs):
         super().__init__(NAME)
         self.models = models
