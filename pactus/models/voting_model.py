@@ -19,7 +19,7 @@ class VotingModel(Model):
                  models: List[Model],
                  voting: str = 'hard',
                  weights: Union[List[float], None] = None,
-                 featurizer: Union[featurizers.Featurizer, None] = None,
+                 featurizer: featurizers.Featurize = None,
                  **kwargs):
         super().__init__(NAME)
         self.models = models
@@ -27,6 +27,7 @@ class VotingModel(Model):
         self.weights = weights
         self.encoder: Union[LabelEncoder, None] = None 
         self.ensemble: VotingClassifier
+        self.featurizer = featurizer
         self.set_summary(voting=voting, weights=weights, **kwargs)
 
     def _encode_labels(self, data: Data) -> np.ndarray:
@@ -41,28 +42,21 @@ class VotingModel(Model):
 
     def train(self, data: Data, cross_validation: int = 0, grid_params: dict = {}):
         self.set_summary(cross_validation=cross_validation)
-
         for model in self.models:
             model.train(data, cross_validation, grid_params) 
-
+    
         estimators = [(model.name, model.grid.best_estimator_) for model in self.models] 
         self.ensemble = VotingClassifier(estimators=estimators, voting=self.voting, weights=self.weights)
 
-        X = data.featurize(self.models[0].featurizer) 
-        y = self._encode_labels(data)
-        self.ensemble.fit(X, y)
+        X_data = data.featurize(self.featurizer) 
+        classes = self._encode_labels(data)
+        self.ensemble.fit(X_data, classes)
 
 
     def predict(self, data: Data) -> List[Any]:
-        X = data.featurize(self.models[0].featurizer)
-        predicted = self.ensemble.predict(X)
-
-        assert self.encoder is not None
-        return self.encoder.inverse_transform(predicted)
+        X = data.featurize(self.featurizer)
+        return self.ensemble.predict(X)
 
     def predict_single(self, traj: Trajectory) -> Any:
         """Predicts the label of a single trajectory."""
-        X = self.models[0].featurizer.featurize([traj])
-        predicted = self.ensemble.predict(X)
-        assert self.encoder is not None
-        return self.encoder.inverse_transform(predicted)[0]
+        return self.ensemble.predict([traj])[0]
