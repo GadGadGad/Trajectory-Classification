@@ -11,7 +11,7 @@ from pactus.models.model import Model
 NAME = "logistic_regression"
 
 
-class LinearRegressionModel(Model):
+class LogisticRegressionModel(Model):
     """Implementation of a Logistic Regression Classifier."""
 
     def __init__(self, featurizer: featurizers.Featurizer, **kwargs):
@@ -21,12 +21,11 @@ class LinearRegressionModel(Model):
         self.grid: GridSearchCV
         self.set_summary(**kwargs)
 
-    def train(self, data: Data, cross_validation: int = 0, grid_params: dict = {}):
+    def train(self, data: Data, cross_validation: int = 0, param_grid: dict = {}):
         self.set_summary(cross_validation=cross_validation)
         x_data = data.featurize(self.featurizer)
-        self.grid = GridSearchCV(self.model, grid_params, cv=cross_validation, verbose=3)
-        classes = self._encode_labels(data)
-        self.grid.fit(x_data, classes)
+        self.grid = GridSearchCV(self.model, {}, cv=cross_validation, verbose=3)
+        self.grid.fit(x_data, data.labels)
 
     def predict(self, data: Data) -> List[Any]:
         x_data = data.featurize(self.featurizer)

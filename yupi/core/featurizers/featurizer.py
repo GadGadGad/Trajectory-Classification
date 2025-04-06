@@ -85,7 +85,7 @@ class Featurizer(abc.ABC):
         """
         end_index = start_index + self.count
         if detailed:
-            print(f"{self.__class__.__name__}: Contributes features from column {start_index} to {end_index - 1}")
+            print(f"{self.__class__.__name__}: Contributes {self.count} features from column {start_index} to {end_index - 1}")
         else:
             print(f"{self.__class__.__name__}: Contributes {self.count} features.")
         return end_index, [(self.__class__.__name__, start_index, end_index - 1)]

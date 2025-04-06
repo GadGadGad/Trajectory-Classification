@@ -8,7 +8,10 @@ from pactus.models.random_forest_model import RandomForestModel
 from pactus.models.svm_model import SVMModel
 from pactus.models.transformer_model import TransformerModel
 from pactus.models.xgboost_model import XGBoostModel
-
+from pactus.models.lightgbm_model import LightGBMModel
+from pactus.models.catboost_model import CatBoostModel
+from pactus.models.voting_model import VotingModel
+from pactus.models.linear_model import LogisticRegressionModel
 __all__ = [
     "Model",
     "DecisionTreeModel",
@@ -20,4 +23,8 @@ __all__ = [
     "TransformerModel",
     "XGBoostModel",
     "LSTMModel",
+    "LightGBMModel",
+    "CatBoostModel",
+    "LogisticRegressionModel",
+    "VotingModel",
 ]
