@@ -3,23 +3,23 @@ from typing import Any, List, Union
 import numpy as np
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
-from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
 from yupi import Trajectory
 
 from pactus import featurizers
 from pactus.dataset import Data
 from pactus.models.model import Model
 
-NAME = "xgboost"
+NAME = "catboost"
 
 
-class XGBoostModel(Model):
-    """Implementation of a XGBoost Classifier."""
+class CatBoostModel(Model):
+    """Implementation of a CatBoost Classifier."""
 
     def __init__(self, featurizer: featurizers.Featurizer, **kwargs):
         super().__init__(NAME)
         self.featurizer = featurizer
-        self.model = XGBClassifier(**kwargs)
+        self.model = CatBoostClassifier(**kwargs)
         self.encoder: Union[LabelEncoder, None] = None
         self.grid: GridSearchCV
         self.set_summary(**kwargs)
@@ -33,10 +33,10 @@ class XGBoostModel(Model):
         assert isinstance(encoded_labels, np.ndarray)
         return encoded_labels
 
-    def train(self, data: Data, cross_validation: int = 0, grid_params: dict = {}):
+    def train(self, data: Data, cross_validation: int = 0):
         self.set_summary(cross_validation=cross_validation)
         x_data = data.featurize(self.featurizer)
-        self.grid = GridSearchCV(self.model, grid_params, cv=cross_validation, verbose=3)
+        self.grid = GridSearchCV(self.model, {}, cv=cross_validation, verbose=3)
         classes = self._encode_labels(data)
         self.grid.fit(x_data, classes)
 

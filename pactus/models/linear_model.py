@@ -1,37 +1,25 @@
-from typing import Any, List, Union
+from typing import Any, List
 
-import numpy as np
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import LabelEncoder
-from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression
 from yupi import Trajectory
 
 from pactus import featurizers
 from pactus.dataset import Data
 from pactus.models.model import Model
 
-NAME = "xgboost"
+NAME = "logistic_regression"
 
 
-class XGBoostModel(Model):
-    """Implementation of a XGBoost Classifier."""
+class LinearRegressionModel(Model):
+    """Implementation of a Logistic Regression Classifier."""
 
     def __init__(self, featurizer: featurizers.Featurizer, **kwargs):
         super().__init__(NAME)
         self.featurizer = featurizer
-        self.model = XGBClassifier(**kwargs)
-        self.encoder: Union[LabelEncoder, None] = None
+        self.model = LogisticRegression(**kwargs)
         self.grid: GridSearchCV
         self.set_summary(**kwargs)
-
-    def _encode_labels(self, data: Data) -> np.ndarray:
-        """Encode the labels"""
-        if self.encoder is None:
-            self.encoder = LabelEncoder()
-            self.encoder.fit(data.labels)
-        encoded_labels = self.encoder.transform(data.labels)
-        assert isinstance(encoded_labels, np.ndarray)
-        return encoded_labels
 
     def train(self, data: Data, cross_validation: int = 0, grid_params: dict = {}):
         self.set_summary(cross_validation=cross_validation)
@@ -42,9 +30,7 @@ class XGBoostModel(Model):
 
     def predict(self, data: Data) -> List[Any]:
         x_data = data.featurize(self.featurizer)
-        predicted = self.grid.predict(x_data)
-        assert self.encoder is not None
-        return self.encoder.inverse_transform(predicted)
+        return self.grid.predict(x_data)
 
     def predict_single(self, traj: Trajectory) -> Any:
         """Predicts the label of a single trajectory."""

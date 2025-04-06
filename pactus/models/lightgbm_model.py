@@ -3,23 +3,23 @@ from typing import Any, List, Union
 import numpy as np
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
-from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 from yupi import Trajectory
 
 from pactus import featurizers
 from pactus.dataset import Data
 from pactus.models.model import Model
 
-NAME = "xgboost"
+NAME = "lightgbm"
 
 
-class XGBoostModel(Model):
-    """Implementation of a XGBoost Classifier."""
+class LightGBMModel(Model):
+    """Implementation of a LightGBM Classifier."""
 
     def __init__(self, featurizer: featurizers.Featurizer, **kwargs):
         super().__init__(NAME)
         self.featurizer = featurizer
-        self.model = XGBClassifier(**kwargs)
+        self.model = LGBMClassifier(**kwargs)
         self.encoder: Union[LabelEncoder, None] = None
         self.grid: GridSearchCV
         self.set_summary(**kwargs)
